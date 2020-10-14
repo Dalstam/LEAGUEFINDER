@@ -1,0 +1,153 @@
+﻿body {
+    font: 400 normal 100%/1.5 proxima-nova,Corbel,Helvetica Neue,Helvetica,Arial,sans-serif;
+    color: #5b5e73;
+    margin: 0;
+    font-family: Sans-Serif;
+    font-size: 18px;
+    line-height: 1.5em;
+    font-weight: 500;
+    text-rendering: optimizeLegibility;
+}
+
+.container-fluid {
+    padding: 0;
+}
+
+.input-label {
+    margin: 0;
+}
+
+label.error,
+p.error {
+    color: #bb0000;
+    font-size: 18px;
+}
+
+p.header {
+    margin: 0;
+    font-size: 12px;
+    padding: 0.5em;
+    background: #f2f2ee;
+}
+
+#search-button {
+    border: none;
+    background-color: #2769ef;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #ffffff;
+    padding: 13px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 20px;
+    margin-bottom: 25px;
+}
+
+button[disabled] {
+    cursor: not-allowed;
+}
+
+#search-summary-wrapper-row {
+    display: none;
+}
+
+#change-search-wrapper {
+    text-align: right;
+    margin-bottom: 0.5em;
+}
+
+#map-wrapper-row {
+    margin-top: .25em;
+    display: none;
+}
+
+    #map-wrapper-row .league-result {
+        margin-top: 0.5em;
+        font-size: 18px;
+        line-height: 1em;
+    }
+
+        #map-wrapper-row .league-result a {
+            text-decoration: none;
+            color: #1472ed;
+        }
+
+#change-search-button {
+    font-size: 12px;
+    text-decoration: none;
+    border: none;
+    background-color: #2769ef;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #ffffff;
+    padding: 0.5em;
+    cursor: pointer;
+    display: block;
+    text-align: center;
+}
+
+#map {
+    width: 100%;
+    min-height: 400px;
+}
+
+#league-lookup-failure-message-row,
+#multiple-results-row,
+#no-results-row,
+#contact-form-row,
+#contact-form-success-row,
+#contact-form-failure-row,
+#geocoding-precision-too-low-message-row,
+#geocoding-failure-message-row,
+#approximate-match-row {
+    margin-top: .75em;
+    display: none;
+}
+
+.form-group {
+    margin-bottom: 1em;
+}
+
+    .form-group label {
+        display: block;
+    }
+
+.contact-form .submit-button {
+    font-size: 16px;
+    text-decoration: none;
+    border: none;
+    background-color: #2769ef;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: #ffffff;
+    padding: 14px;
+    cursor: pointer;
+}
+
+.form-control:focus {
+    border-color: #cccccc;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.form-control-lg {
+    font-size: 1rem;
+}
+
+#contact-form-success-row p {
+    background: #28a745;
+    text-align: center;
+    padding: 0.5em;
+    color: #fff;
+}
+
+#contact-form-failure-row p {
+    background: #dc3545;
+    text-align: center;
+    padding: 0.5em;
+    color: #fff;
+}
+
+#approximate-match-row .alert p {
+    font-size: 16px;
+}

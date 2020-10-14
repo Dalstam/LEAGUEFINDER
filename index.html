@@ -1,0 +1,268 @@
+﻿
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>League Finder</title>
+
+    <link href="css\output\bootstrap-custom.min.css" rel="stylesheet">
+    <link href="css\output\font-awesome.min.css" rel="stylesheet">
+    <link href="css\output\leagueFinder.css?g=e439be37-df73-4cbd-b487-b60274a29486" rel="stylesheet">
+
+    <script src="js\output\jquery.min.js" type="text/javascript"></script>
+    <script src="js\output\jqueryval.min.js" type="text/javascript"></script>
+
+    <script src="//js.arcgis.com/4.8/"></script>
+    <script src="js\output\MapManager.js?g=a5824929-9b52-4f1f-9ec0-d69819269388" type="text/javascript"></script>
+    <script type="text/javascript">
+        var leagueFinderApiBaseUrl = '/leaguefinder/api/';
+        var arcGISMapServerUrl = 'https://maps.littleleague.org/server/rest/services/League_Boundary_Maps_Prod_League_Finder/MapServer/0';
+    </script>
+    <script src="js\output\leagueFinder.js?g=be8d6564-35d2-4d53-b386-30c1dd59b5f0" type="text/javascript"></script>
+
+    <!--Facebook Pixel Code -->
+    <script>!function (f, b, e, v, n, t, s) { if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments) }; if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s) }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js'); fbq('init', '821534494678174'); // Insert your pixel ID here.fbq('track', 'PageView');</script>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=821534494678174&ev=PageView&noscript=1"></noscript><!--DO NOT MODIFY -->
+    <!--End Facebook Pixel Code -->
+
+    <script type="text/javascript">
+        /* <![CDATA[ */
+        goog_snippet_vars = function () {
+            var w = window;
+            w.google_conversion_id = 942821740;
+            w.google_conversion_label = "AymmCJ6G5HAQ7KLJwQM";
+            w.google_remarketing_only = false;
+        }
+        goog_report_conversion = function (url) {
+            goog_snippet_vars();
+            window.google_conversion_format = "3";
+            var opt = new Object();
+            opt.onload_callback = function () {
+                if (typeof (url) != 'undefined') {
+                    window.location = url;
+                }
+            }
+            var conv_handler = window['google_trackConversion'];
+            if (typeof (conv_handler) == 'function') {
+                conv_handler(opt);
+            }
+        } /* ]]> */
+    </script>
+    <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion_async.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div id="address-search-form-row" class="row">
+            <div class="col-md-12">
+                <form id="address-search-form" action="">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="input-label">
+                                I'd Like to Play:
+                            </label>
+                            <select id="sport-type-input" name="sport-type-input" class="form-control form-control-lg">
+                                <option value="">Please Select...</option>
+                                <option value="1">Baseball</option>
+                                <option value="2">Softball</option>
+                                <option value="4">Challenger Division</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="input-label">
+                                Near:
+                            </label>
+                            <input type="text" id="address-input" name="address-input" class="form-control form-control-lg" placeholder="(Physical Address of Home or School)">
+                            <small class="text-muted">
+                                Enter your street address, city, state and postal code separated by commas.<br>Example: 525 Montgomery Pike, South Williamsport, PA 17702
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 1em">
+                        <div class="col-md-6 offset-md-3">
+                            <button type="submit" id="search-button">
+                                <i class="fas fa-search" id="search-button-icon"></i> <span id="search-button-text">Find Your League</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row" id="geocoding-failure-message-row">
+            <div class="col-md-12">
+                <p class="error">
+                    We're sorry, we were unable to figure out your address. Please double check the address entered and try again.
+                </p>
+            </div>
+        </div>
+        <div class="row" id="geocoding-precision-too-low-message-row">
+            <div class="col-md-12">
+                <p class="error">
+                    We're sorry, we cannot determine the exact location of your address. Please provide your entire physical address (unit/house number, street, city, state, and postal code) and try again.
+                </p>
+                <p class="error">
+                    Example: 525 Montgomery Pike, South Williamsport, PA 17702
+                </p>
+            </div>
+        </div>
+        <div class="row" id="league-lookup-failure-message-row">
+            <div class="col-md-12">
+                <p class="text-danger">
+                    An error occurred while attempting to find your league.<br>
+                    Please <a href="https://apps.littleleague.org/dc/support?referrer=playlittleleague.org" target="_blank">contact Little League Support</a> for assistance.
+                </p>
+            </div>
+        </div>
+        <div class="row" id="contact-form-success-row">
+            <div class="col-md-12">
+                <p>
+                    Your message has been sent. Thank you for contacting <span data-role="league-result-league-name-display"></span>.
+                </p>
+            </div>
+        </div>
+        <div class="row" id="contact-form-failure-row">
+            <div class="col-md-12">
+                <p class="text-danger">
+                    An error occurred while attempting to send your message.<br>
+                    Please <a href="https://apps.littleleague.org/dc/support?referrer=playlittleleague.org" target="_blank">contact Little League Support</a> for assistance.
+                </p>
+            </div>
+        </div>
+        <div id="search-summary-wrapper-row">
+            <div class="row">
+                <div class="col-md-10 pr-0">
+                    <p id="search-summary" class="header">
+                        Play <b data-role="selected-sport-type-display"></b> near <b data-role="formatted-search-address-display"></b>:
+                    </p>
+                </div>
+                <div class="col-md-2 pl-0">
+                    <a href="#" id="change-search-button">
+                        <i class="fas fa-undo"></i> Change Search
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="map-wrapper-row">
+            <div class="col-md-12">
+                <div id="map"></div>
+                <p class="header league-result mb-0">
+                    Your league is <b data-role="league-result-league-name-display"></b><b class="text-danger" data-role="league-result-asterisk-display"></b><span data-role="league-result-league-location-display-wrapper">, operating out of <span data-role="league-result-league-location-display"></span></span>. <a href="#" target="_blank" id="league-result-website">Visit their Website <i class="fas fa-external-link-alt"></i></a>
+                </p>
+                <p id="approximate-match-row" class="alert-warning my-0 px-2 py-1">
+                    <b class="text-danger">*</b> We could not determine the location of the address you entered with 100% certainty. Please verify with <span data-role="league-result-league-name-display"></span> that the address is within the league's boundary.
+                </p>
+                <p class="text-justify mt-1" style="line-height: 1em">
+                    <small class="text-muted">
+                        The address you entered appears to be located within the boundary of <b data-role="league-result-league-name-display"></b><span data-role="league-result-league-location-display-wrapper">, operating out of <span data-role="league-result-league-location-display"></span></span>. Please confirm that your address has been accurately plotted on the map above. If the plotted location of your address is incorrect, please consider making your address more specific (e.g. 123 Main St, Anywhere, PA 12345) and search again. The Little League<sup>&reg;</sup> League Finder tool is for informational purposes only; please verify with <span data-role="league-result-league-name-display"></span> that the address of your home or school is within the league's boundary.
+                    </small>
+                </p>
+            </div>
+        </div>
+        <div class="row" id="no-results-row">
+            <div class="col-md-12">
+                <p>
+                    We're sorry, but we couldn't find a league near you that offers <span data-role="selected-sport-type-display"></span>. The address you provided unfortunately is not located inside the boundaries of a Little League program. A player is eligible for a local Little League if they reside inside the boundaries of a league or attend a school whose physical location is located inside the boundaries. Two links are provided below, an article regarding player eligibility, and another about starting a Little League program in your area.
+                </p>
+                <ul>
+                    <li>
+                        <a href="https://www.littleleague.org/university/articles/establishing-player-eligibility-in-a-local-little-league/" target="_blank">
+                            Establishing Player Eligibility in a Local Little League
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.littleleague.org/play-little-league/affiliate-little-league/" target="_blank">
+                            Affiliate your league with Little League or start a Little League program in your community
+                        </a>
+                    </li>
+                </ul>
+                <p>
+                    Please fill out the form below and a Little League representative will contact you to assist you to become part of the world’s largest youth sports organization!
+                </p>
+            </div>
+        </div>
+        <div class="row" id="multiple-results-row">
+            <div class="col-md-12">
+                <p>
+                    We're sorry, but we found more than one league near you that offers <span data-role="selected-sport-type-display"></span>.
+                </p>
+                <p>
+                    Please fill out the form below and a Little League representative will contact you to provide further assistance.
+                </p>
+            </div>
+        </div>
+        <div class="row" id="contact-form-row">
+            <div class="col-md-12">
+                <form id="contact-form" class="contact-form">
+                    <h4>Contact <span data-role="league-result-league-name-display"></span></h4>
+                    <div class="form-group">
+                        <label>
+                            Parent/Legal Guardian Name
+                        </label>
+                        <input type="text" name="your-name" placeholder="(Required)" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            Parent/Legal Guardian Email Address
+                        </label>
+                        <input type="text" name="your-email" placeholder="(Required)" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Reason for Contacting <span data-role="league-result-league-name-display"></span></label>
+                        <select name="contact-reason" class="form-control">
+                            <option>I want to register a child to play</option>
+                            <option>I would like more information</option>
+                            <option>I would like to volunteer</option>
+                            <option>I would like to support or donate</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Comment/Question</label>
+                        <textarea name="comment-question" rows="5" placeholder="(Optional)" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Communications Consent</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="communications-consent" id="communications-consent-yes" value="true">
+                            <label class="form-check-label" for="communications-consent-yes">
+                                Yes, please. I'd like to receive information from Little League International about the Little League Baseball and Softball program, as well as exclusive offers and promotions from <a href="https://www.littleleaguestore.net" target="_blank">LittleLeagueStore.net</a> and from partners of Little League Baseball and Softball.
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="communications-consent" id="communications-consent-no" value="false">
+                            <label class="form-check-label" for="communications-consent-no">
+                                No, thank you. I am not interested in receiving information about the Little League Baseball and Softball program or exclusive offers and promotions.
+                            </label>
+                        </div>
+                        <small class="text-muted">(Any communication would be directed to you, the parent. You may unsubscribe at any time.)</small>
+                    </div>
+                    <div class="form-group" id="contact-form-communications-preferences-row" style="display:none">
+                        <label>Communications Preferences</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="communications-preferences" id="communications-preferences-email" value="Email" checked="">
+                            <label class="form-check-label" for="communications-preferences-email">
+                                Email - I'd like to receive communications from Little League International and/or its partners via email.
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="communications-preferences" id="communications-preferences-postal-mail" value="Postal Mail" checked="">
+                            <label class="form-check-label" for="communications-preferences-postal-mail">
+                                Postal Mail - I'd like to receive communications from Little League International and/or its partners via mail.
+                            </label>
+                        </div>
+                    </div>
+                    <p class="text-justify" style="line-height: 1em">
+                        <small class="text-muted">
+                            By submitting this form you hereby agree that you have read and understand the <a href="https://www.littleleague.org/privacy-policy/" target="_blank">Little League<sup>&reg;</sup> Privacy Policy</a>.
+                        </small>
+                    </p>
+                    <input type="hidden" name="search-id" data-role="search-id-input">
+                    <button type="submit" class="submit-button" id="contact-form-submit-button">
+                        <i class="fas fa-envelope" id="contact-form-submit-button-icon"></i> <span id="contact-form-submit-button-text">Send Message</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script async="" defer="" src="//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyBuoW8-Be1ruhT-aw9kr0-9kuvsY3eQgEM&libraries=places&callback=googleMapsReady"></script>
+</body>
+</html>
